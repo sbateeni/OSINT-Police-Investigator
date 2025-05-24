@@ -12,19 +12,41 @@ input_type = st.radio("حدد نوع المعلومة المتوفرة لديك:
 if input_type == "رقم هاتف":
     phone = st.text_input("أدخل رقم الهاتف (مع رمز الدولة):")
     if st.button("بحث"):
-        with st.spinner("جارٍ البحث باستخدام PhoneInfoga..."):
-            result = lookup_phone(phone)
-        st.subheader("معلومات الهاتف:")
-        st.code(result)
-
-        with st.spinner("جارٍ محاولة ربط الرقم بمنصات التواصل الاجتماعي..."):
-            links = check_social_media_by_phone(phone)
-        if links:
-            st.subheader("روابط قد تكون مرتبطة بالرقم:")
-            for link in links:
-                st.write(link)
+        if not phone:
+            st.error("الرجاء إدخال رقم هاتف")
         else:
-            st.info("لم يتم العثور على ارتباطات واضحة عبر المواقع الاجتماعية.")
+            try:
+                with st.spinner("جارٍ البحث عن معلومات الهاتف..."):
+                    result = lookup_phone(phone)
+                
+                if "خطأ" in result:
+                    st.error(result["خطأ"])
+                else:
+                    st.subheader("معلومات الهاتف:")
+                    
+                    # عرض المعلومات الأساسية
+                    if "معلومات أساسية" in result:
+                        for key, value in result["معلومات أساسية"].items():
+                            st.write(f"**{key}:** {value}")
+                    
+                    # عرض المصادر المستخدمة
+                    if "مصادر" in result and result["مصادر"]:
+                        st.write("**المصادر المستخدمة:**")
+                        for source in result["مصادر"]:
+                            st.write(f"- {source}")
+
+                # البحث في وسائل التواصل الاجتماعي
+                with st.spinner("جارٍ محاولة ربط الرقم بمنصات التواصل الاجتماعي..."):
+                    links = check_social_media_by_phone(phone)
+                if links:
+                    st.subheader("روابط قد تكون مرتبطة بالرقم:")
+                    for link in links:
+                        st.write(link)
+                else:
+                    st.info("لم يتم العثور على ارتباطات واضحة عبر المواقع الاجتماعية.")
+                    
+            except Exception as e:
+                st.error(f"حدث خطأ أثناء البحث: {str(e)}")
 
 elif input_type == "بريد إلكتروني":
     email = st.text_input("أدخل البريد الإلكتروني:")
