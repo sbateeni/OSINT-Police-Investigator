@@ -19,21 +19,27 @@ if input_type == "رقم هاتف":
                 with st.spinner("جارٍ البحث عن معلومات الهاتف..."):
                     result = lookup_phone(phone)
                 
+                # عرض التحذيرات إذا وجدت
+                if "تحذير" in result:
+                    st.warning(result["تحذير"])
+                
+                # عرض الأخطاء إذا وجدت
                 if "خطأ" in result:
                     st.error(result["خطأ"])
-                else:
+                
+                # عرض النتائج
+                if "معلومات أساسية" in result and result["معلومات أساسية"]:
                     st.subheader("معلومات الهاتف:")
-                    
-                    # عرض المعلومات الأساسية
-                    if "معلومات أساسية" in result:
-                        for key, value in result["معلومات أساسية"].items():
-                            st.write(f"**{key}:** {value}")
+                    for key, value in result["معلومات أساسية"].items():
+                        st.write(f"**{key}:** {value}")
                     
                     # عرض المصادر المستخدمة
                     if "مصادر" in result and result["مصادر"]:
                         st.write("**المصادر المستخدمة:**")
                         for source in result["مصادر"]:
                             st.write(f"- {source}")
+                else:
+                    st.info("لم يتم العثور على معلومات للرقم المحدد.")
 
                 # البحث في وسائل التواصل الاجتماعي
                 with st.spinner("جارٍ محاولة ربط الرقم بمنصات التواصل الاجتماعي..."):
